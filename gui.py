@@ -1,7 +1,8 @@
-from tkinter import *
+from Tkinter import *
 import string
 import json
 import os
+import pyhk
 
 
 """
@@ -28,6 +29,7 @@ class MuteSpeak(Frame):
         self.wpm = IntVar()
         self.gap = IntVar()
         self.clearOnMessage = BooleanVar()
+        self.hot = pyhk.pyhk()
 
     def reset_defaults(self):
         self.amplitude.set(100)
@@ -55,19 +57,19 @@ class MuteSpeak(Frame):
         """
         Constructs file.  Must be called first.
         """
-            mBar = Frame(self, relief=RAISED, borderwidth=2)
-            mBar.pack(fill=X)
+        mBar = Frame(self, relief=RAISED, borderwidth=2)
+        mBar.pack(fill=X)
 
-            File_button = Menubutton(mBar, text='File', underline=0)
-            File_button.pack(side=LEFT, padx="1m")
-            File_button.menu = Menu(File_button)
+        File_button = Menubutton(mBar, text='File', underline=0)
+        File_button.pack(side=LEFT, padx="1m")
+        File_button.menu = Menu(File_button)
 
-            File_button.menu.add_command(label='Save',     underline=0,command=self.saveit)
-            File_button.menu.add_command(label='Reset', underline=0,command=self.reset_defaults)
+        File_button.menu.add_command(label='Save',     underline=0,command=self.saveit)
+        File_button.menu.add_command(label='Reset', underline=0,command=self.reset_defaults)
 
-            File_button['menu'] = File_button.menu
+        File_button['menu'] = File_button.menu
 
-            mBar.tk_menuBar(File_button)
+        mBar.tk_menuBar(File_button)
 
 
 
@@ -135,12 +137,13 @@ class MuteSpeak(Frame):
         self.message.set("Hello")
         self.entry_message.config(textvariable=self.message)
 
-        self.entry_message.bind('<Key-Return>', self.speak_contents)
+        self.hot.addHotkey(['Return'], self.speak_contents, isThread=True)
+        #self.entry_message.bind('<Key-Return>', self.speak_contents)
 
 
 
 
-    def speak_contents(self, event):
+    def speak_contents(self):
         """
         Launches eSpeak.  Espeak must be in the path Environment.
         """
@@ -154,7 +157,7 @@ class MuteSpeak(Frame):
         args = self.espeaks_args()
 
         ## TODO: launch as a daemon thread so gui main thread remains responsive
-        os.system("espeak " + args + ' '+ repr(message))
+        os.system("espeak " + args + ' '+ '"' + repr(message) + '"')
         self.entry_message.focus()
 
 
